@@ -1,0 +1,47 @@
+
+### Register a GameFlix user
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "gameflixtest@example.com",
+  "username": "TestGamer",
+  "password": "GameFlixTest123!"
+}
+### Try registering the same email again
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "gameflixtest@example.com",
+  "username": "AnotherGamer",
+  "password": "DifferentTest123!"
+}
+### Log in to GameFlix
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "gameflixtest@example.com",
+  "password": "GameFlixTest123!"
+}
+### Login with incorrect password
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "gameflixtest@example.com",
+  "password": "WrongPassword123!"
+}
+
+### Get profile without a token
+GET http://localhost:8080/api/users/me
+
+### Get profile with a token
+GET http://localhost:8080/api/users/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJnYW1lZmxpeHRlc3RAZXhhbXBsZS5jb20iLCJ1c2VySWQiOjEsImlhdCI6MTc5MjM4NTEzNywiZXhwIjoxNzkyMzg2MDM3fQ.CukfpzZ0gVrhFi5gZ3O5fv0JyQMlDBr17HY-0_o1n6k
+
+### Get profile with an invalid token
+GET http://localhost:8080/api/users/me
+Authorization: Bearer this-is-not-a-valid-token
+
