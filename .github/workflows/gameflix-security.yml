@@ -1,0 +1,52 @@
+name: GameFlix Build and Security Scan
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+jobs:
+  build-and-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Build Spring Boot application
+        run: ./mvnw -B clean package
+
+      - name: Build Docker image
+        run: docker build -t gameflix:${{ github.sha }} .
+
+      - name: Install Syft
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh \
+            | sh -s -- -b /usr/local/bin
+
+      - name: Generate CycloneDX SBOM
+        run: |
+          syft gameflix:${{ github.sha }} \
+            -o cyclonedx-json=sbom.cdx.json
+      - name: Install Trivy
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
+            | sh -s -- -b /usr/local/bin
+
+      - name: Scan image for CRITICAL vulnerabilities
+        run: |
+          trivy image \
+            --severity CRITICAL \
+            --exit-code 1 \
+            gameflix:${{ github.sha }}
+      - name: Upload SBOM
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gameflix-sbom
+          path: sbom.cdx.json
