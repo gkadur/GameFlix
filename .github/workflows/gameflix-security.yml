@@ -34,6 +34,7 @@ jobs:
       - name: Build Spring Boot application
         env:
           DB_PASSWORD: rootpassword
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: ./mvnw -B clean package
 
       - name: Build Docker image
