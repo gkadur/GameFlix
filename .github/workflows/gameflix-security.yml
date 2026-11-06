@@ -7,6 +7,19 @@ on:
 jobs:
   build-and-scan:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: demo30
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -uroot -prootpassword"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -19,6 +32,8 @@ jobs:
           cache: maven
 
       - name: Build Spring Boot application
+        env:
+          DB_PASSWORD: rootpassword
         run: ./mvnw -B clean package
 
       - name: Build Docker image
